@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-heading: "Space Grotesk", "Inter", system-ui, sans-serif;
+    --font-sans: "Inter", system-ui, sans-serif;
+    --font-mono: "Fira Code", "JetBrains Mono", monospace;
+  }
+
+  body {
+    @apply transition-colors duration-300 font-sans antialiased;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-slate-100 dark:bg-slate-900;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 dark:bg-slate-700 rounded-full hover:bg-slate-400 dark:hover:bg-slate-600;
+  }
+
+  /* Interactive markdown container styling for blog articles */
+  .markdown-body {
+    @apply max-w-none text-slate-700 dark:text-slate-300;
+  }
+  
+  .markdown-body h1, .markdown-body h2, .markdown-body h3 {
+    @apply font-heading font-bold text-slate-900 dark:text-white mt-8 mb-4 tracking-tight;
+  }
+  
+  .markdown-body h1 { @apply text-3xl; }
+  .markdown-body h2 { @apply text-2xl; }
+  .markdown-body h3 { @apply text-xl; }
+  
+  .markdown-body p {
+    @apply mb-5 leading-relaxed text-base;
+  }
+  
+  .markdown-body ul {
+    @apply list-disc pl-6 mb-5 space-y-2;
+  }
+  
+  .markdown-body ol {
+    @apply list-decimal pl-6 mb-5 space-y-2;
+  }
+  
+  .markdown-body pre {
+    @apply bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto mb-6 border border-slate-800 dark:border-slate-800 font-mono text-sm shadow-inner;
+  }
+  
+  .markdown-body code {
+    @apply font-mono bg-slate-100 dark:bg-slate-800 text-teal-600 dark:text-teal-400 px-1.5 py-0.5 rounded text-sm font-semibold;
+  }
+
+  .markdown-body pre code {
+    @apply bg-transparent text-inherit p-0 rounded-none text-sm font-normal;
+  }
+
+  .markdown-body blockquote {
+    @apply border-l-4 border-teal-500 pl-4 italic text-slate-500 dark:text-slate-400 my-6;
+  }
+
+  .markdown-body img {
+    @apply rounded-xl shadow-md border border-slate-100 dark:border-slate-800 max-h-96 object-cover mx-auto my-6;
+  }
+
+  /* PRINT STYLE OVERRIDES FOR RESUME - ensures PDF matches Swaraj Patil's professional resume */
+  @media print {
+    body {
+      @apply bg-white text-black;
+    }
+    .no-print {
+      display: none !important;
+    }
+    .print-only {
+      display: block !important;
+    }
+    /* Hide shadows and headers outside of paper */
+    header, footer, .floating-download-btn, .ai-companion-trigger {
+      display: none !important;
+    }
+    .print-container {
+      margin: 0 !important;
+      padding: 0 !important;
+      border: none !important;
+      background: white !important;
+      color: black !important;
+      box-shadow: none !important;
+    }
+    a {
+      text-decoration: underline;
+      color: black !important;
+    }
+  }
+}
+
+@theme {
+  --font-heading: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --color-teal-brand: #14b8a6;
+  --color-blue-brand: #0ea5e9;
+}

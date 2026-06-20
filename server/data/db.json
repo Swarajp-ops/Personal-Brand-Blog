@@ -1,0 +1,348 @@
+{
+  "blogs": [
+    {
+      "id": "blog_1",
+      "title": "How to Build Full-Stack App with MERN + AI in 2026",
+      "slug": "how-to-build-full-stack-app-with-mern-ai-in-2026",
+      "excerpt": "Learn how to integrate OpenAI/Gemini APIs into your MERN stack apps with streaming, state management, and reliable server-sided architectures.",
+      "category": "Web Development",
+      "tags": [
+        "MERN",
+        "AI",
+        "OpenAI",
+        "React",
+        "Node.js"
+      ],
+      "author": "Swaraj Patil",
+      "createdAt": "2026-06-12T14:30:00.000Z",
+      "updatedAt": "2026-06-12T14:30:00.000Z",
+      "readTime": "15 min",
+      "featured": true,
+      "content": "### Integrating Large Language Model APIs in the MERN Stack\n\nArtificial Intelligence integrated features are no longer just optional enhancements; they are becoming standard pillars of modern full-stack engineering. This comprehensive tutorial walks you through establishing an Express server calling high-performance AI APIs securely, routing streaming prompt packages, and consuming them inside smooth React interfaces.\n\n#### Why Proxied Server APIs Matter\n\nAlways avoid calling commercial AI endpoints directly from the client side. Embedding secret keys directly in browser bundles exposes your billable APIs to attackers in seconds. Instead, deploy server-sided REST pipelines guarding your API secrets.\n\nHere is a secure Node.js + Express proxy handler communicating with modern LLM SDK architectures:\n\n```javascript\n// server/routes/ai.js\nimport express from 'express';\nimport { GoogleGenAI } from \"@google/genai\";\n\nconst router = express.Router();\nconst ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });\n\nrouter.post('/generate', async (req, res) => {\n  try {\n    const { prompt } = req.body;\n    if (!prompt) {\n      return res.status(400).json({ error: 'Prompt is required' });\n    }\n\n    const response = await ai.models.generateContent({\n      model: 'gemini-3.5-flash',\n      contents: prompt,\n    });\n\n    res.json({ result: response.text });\n  } catch (error) {\n    console.error('AI Processing Failure:', error);\n    res.status(500).json({ error: 'Server key processing failed' });\n  }\n});\n\nexport default router;\n```\n\n#### React Client Integration\n\nIn React, compile a clean form handling this prompt state gracefully:\n\n```jsx\nimport React, { useState } from 'react';\n\nexport default function AISynthesizer() {\n  const [prompt, setPrompt] = useState(\"\");\n  const [result, setResult] = useState(\"\");\n  const [loading, setLoading] = useState(false);\n\n  const handleSubmit = async (e) => {\n    e.preventDefault();\n    setLoading(true);\n    try {\n      const response = await fetch('/api/ai/generate', {\n        method: 'POST',\n        headers: { 'Content-Type': 'application/json' },\n        body: JSON.stringify({ prompt })\n      });\n      const data = await response.json();\n      setResult(data.result || data.error);\n    } catch (err) {\n      setResult(\"Connection error\");\n    } finally {\n      setLoading(false);\n    }\n  };\n\n  return (\n    <div className=\"p-6 bg-surface border border-outline-variant rounded-lg\">\n      <h3 className=\"font-headline-md text-primary mb-4\">Prompt Synthesizer</h3>\n      <form onSubmit={handleSubmit} className=\"flex flex-col gap-4\">\n        <textarea\n          value={prompt}\n          onChange={(e) => setPrompt(e.target.value)}\n          placeholder=\"Ask Swaraj's AI...\"\n          className=\"p-3 border rounded border-outline-variant bg-white\"\n        />\n        <button type=\"submit\" disabled={loading} className=\"bg-primary text-white p-2 rounded\">\n          {loading ? 'Thinking...' : 'Synthesize Insights'}\n        </button>\n      </form>\n      {result && <div className=\"mt-4 p-4 bg-white border rounded border-outline-variant font-mono text-sm\">{result}</div>}\n    </div>\n  );\n}\n```"
+    },
+    {
+      "id": "blog_2",
+      "title": "JWT Authentication in React: Complete Guide",
+      "slug": "jwt-authentication-in-react-complete-guide",
+      "excerpt": "Implement secure authentication with JWT tokens in React apps including protected routes, persistent sessions, and secure backend middleware.",
+      "category": "Web Development",
+      "tags": [
+        "JWT",
+        "React",
+        "Authentication",
+        "Security"
+      ],
+      "author": "Swaraj Patil",
+      "createdAt": "2026-05-18T11:00:00.000Z",
+      "updatedAt": "2026-05-18T11:00:00.000Z",
+      "readTime": "12 min",
+      "featured": true,
+      "content": "### Securing MERN Stack Apps using JWT Authentication\n\nUser Session management is a core foundation of production systems. This article shows how to program secure JSON Web Token (JWT) authorizations. We'll implement high-performance token issuance from Node, register persistent browser sessions inside React Context buffers, and shield administrative paths from unauthorized entry.\n\n#### The Architecture Flow\n\n1. Admin inputs secret parameters inside a login form.\n2. Express validates credentials against stored, bcrypt-encrypted hashes.\n3. If successful, Express signs a JWT holding user information (e.g., ID, role, status), and sends it to the client.\n4. React caches this token, persisting session markers on local containers.\n5. React attaches this signed authorization header with subsequent API calls.\n6. Server-side middleware decodes payloads, checking role levels before committing secure database updates.\n\n#### Issuing JWT on Express Backends\n\nHere's an authorization middleware decoding authorization envelopes:\n\n```javascript\n// server/middleware/auth.js\nimport jwt from 'jsonwebtoken';\n\nexport const verifyAdmin = (req, res, next) => {\n  const authHeader = req.headers.authorization;\n  if (!authHeader || !authHeader.startsWith('Bearer ')) {\n    return res.status(401).json({ error: 'Access Denied. Authorization Header missing.' });\n  }\n\n  const token = authHeader.split(' ')[1];\n  try {\n    const verified = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');\n    if (verified.role !== 'admin') {\n      return res.status(403).json({ error: 'Forbidden. Admin role required.' });\n    }\n    req.user = verified;\n    next();\n  } catch (error) {\n    res.status(400).json({ error: 'Invalid Token' });\n  }\n};\n```\n\n#### React client side Context and Hook\n\nEstablish a global React context ensuring simple access to login functions:\n\n```jsx\nimport React, { createContext, useContext, useState, useEffect } from 'react';\n\nconst AuthContext = createContext(null);\n\nexport function AuthProvider({ children }) {\n  const [token, setToken] = useState(localStorage.getItem('admin_token') || null);\n  const [user, setUser] = useState(null);\n\n  useEffect(() => {\n    if (token) {\n      // Decode user structure from token payload\n      try {\n        const payload = JSON.parse(atob(token.split('.')[1]));\n        setUser(payload);\n      } catch (err) {\n        logout();\n      }\n    }\n  }, [token]);\n\n  const login = (jwtToken) => {\n    localStorage.setItem('admin_token', jwtToken);\n    setToken(jwtToken);\n  };\n\n  const logout = () => {\n    localStorage.removeItem('admin_token');\n    setToken(null);\n    setUser(null);\n  };\n\n  return (\n    <AuthContext.Provider value={{ token, user, login, logout }}>\n      {children}\n    </AuthContext.Provider>\n  );\n}\n\nexport const useAuth = () => useContext(AuthContext);\n```"
+    },
+    {
+      "id": "blog_3",
+      "title": "Building Real-Time Apps with Socket.io",
+      "slug": "building-real-time-apps-with-socket-io",
+      "excerpt": "Create high-performance chat apps, live collaborative counters, and asynchronous server-side notification feeds.",
+      "category": "Web Development",
+      "tags": [
+        "Socket.io",
+        "Real-Time",
+        "React",
+        "Node.js"
+      ],
+      "author": "Swaraj Patil",
+      "createdAt": "2026-04-20T09:15:00.000Z",
+      "updatedAt": "2026-04-20T09:15:00.000Z",
+      "readTime": "10 min",
+      "featured": false,
+      "content": "### Embracing Full-Duplex Web Client Interaction with WebSockets\n\nREST operations follow basic request-reply timelines. For real-time applications like instant multi-user logs, dynamic charts, or live document shares, we establish direct two-way channels. This walk-through details wrapping Socket.io pipelines over basic Node Express instances.\n\n#### Socket.io Server Architecture\n\nCombine Express and standard Node HTTP servers to run concurrently inside a unified port bind:\n\n```javascript\nimport express from 'express';\nimport { createServer } from 'http';\nimport { Server } from 'socket.io';\n\nconst app = express();\nconst httpServer = createServer(app);\nconst io = new Server(httpServer, {\n  cors: { origin: \"*\" }\n});\n\nio.on('connection', (socket) => {\n  console.log('Client connected:', socket.id);\n\n  socket.on('broadcast_message', (data) => {\n    // Relay notification arrays to all active rooms on network\n    io.emit('new_message_alert', data);\n  });\n\n  socket.on('disconnect', () => {\n    console.log('Client disconnected:', socket.id);\n  });\n});\n\nhttpServer.listen(3000);\n```\n\nImplementing full duplex pipelines allows direct server integrations, updating dynamic resume checks and form submission reports as they arrive!"
+    },
+    {
+      "id": "blog_4",
+      "title": "ATS Resume Checker: Building AI-Powered Job Matching",
+      "slug": "ats-resume-checker-building-ai-powered-job-matching",
+      "excerpt": "An architectural guide to deploying text scanners, matching algorithms, and LLM rating frameworks.",
+      "category": "Project Walkthroughs",
+      "tags": [
+        "Portfolio",
+        "AI",
+        "Job Matching",
+        "MERN"
+      ],
+      "author": "Swaraj Patil",
+      "createdAt": "2026-03-12T16:00:00.000Z",
+      "updatedAt": "2026-03-12T16:00:00.000Z",
+      "readTime": "18 min",
+      "featured": true,
+      "content": "### Transforming Resume Profiles into Optimization Datagrams\n\nLanding a software internship requires passing Applicant Tracking Systems (ATS). This detailed post details our custom portfolio utility analyzing resumes, highlighting target phrase inclusions, rating overall skill coverage, and generating actionable suggestions.\n\n#### Inside the AI Rating Algorithm\n\nThe checker compares raw resume strings with provided job listings using a structured Gemini API call. The prompt converts text into clean JSON schema results handling:\n- **Match Score**: 0 to 100 percentage.\n- **Missing Skills**: List of libraries or methodologies missing from the resume.\n- **Aesthetic Guidelines**: Formatting, typo detections, and action-verb improvements.\n\n```json\n{\n  \"score\": 75,\n  \"missingKeywords\": [\"Docker\", \"TypeScript\", \"Redis\"],\n  \"parsingFeedback\": \"Replace passive verbs like 'helped building' with high-impact action declarations like 'Architected and deployed...'\"\n}\n```\n\nThis utility provides real developer feedback, allowing Pune students to polish applications dynamically."
+    },
+    {
+      "id": "blog_5",
+      "title": "Redux Toolkit vs Context API: When to Use Each",
+      "slug": "redux-toolkit-vs-context-api-when-to-use-each",
+      "excerpt": "Understand when to use Redux Toolkit or Context API for state management in modern React apps.",
+      "category": "React Tips",
+      "tags": [
+        "React",
+        "Redux",
+        "Context",
+        "State Management"
+      ],
+      "author": "Swaraj Patil",
+      "createdAt": "2026-02-14T10:00:00.000Z",
+      "updatedAt": "2026-02-14T10:00:00.000Z",
+      "readTime": "8 min",
+      "featured": false,
+      "content": "### Navigating the Complexity of React State Management\n\nReact projects need efficient state management. Developers often debate between using Redux Toolkit (RTK) and the native Context API. This guide compares these approaches to help you choose the right pattern for your application.\n\n#### Context API: Localized, Low-Friction State\n\nThe Context API is ideal for static or low-frequency updates, such as user themes, internationalization locales, or simple JWT login sessions.\n\n- **Vibe:** Minimal, elegant, built into React.\n- **Drawback:** Updates trigger re-renders across all nested consumers, which can impact performance in high-frequency data flows.\n\n#### Redux Toolkit: Global, Scalable, Predictable\n\nRedux Toolkit excels in complex tracking scenarios, such as managing a multi-step job board form, handling real-time WebSockets feeds, or orchestrating interactive dashboards with heavy state actions.\n\n- **Vibe:** Robust, middleware-driven, highly optimized.\n- **Drawback:** Requires boilerplates and introduces learning curves for smaller projects."
+    },
+    {
+      "id": "blog_6",
+      "title": "Preparing for Technical Interviews as a Fresher",
+      "slug": "preparing-for-technical-interviews-as-a-fresher",
+      "excerpt": "A practical strategy for landing competitive software internships through rigorous portfolio building.",
+      "category": "Interview Prep",
+      "tags": [
+        "Interviews",
+        "Fresher",
+        "Career",
+        "Resume"
+      ],
+      "author": "Swaraj Patil",
+      "createdAt": "2026-01-05T09:00:00.000Z",
+      "updatedAt": "2026-01-05T09:00:00.000Z",
+      "readTime": "10 min",
+      "featured": false,
+      "content": "### Navigating Technical Internship Interviews\n\nLanding full-stack roles as a student requires standing out from the crowd. Grounding your preparation in actual project execution creates an impressive presentation during technical evaluations.\n\n#### Three pillars of interview preparation\n\n1. **Portfolio Projects:** Build actual, functional production systems rather than basic, cloned interfaces. Be prepared to explain your architectural choices, database structures, and environment settings.\n2. **Core DSA Concepts:** Practice common algorithmic questions (such as arrays, tree traversals, and dynamic hash lookups) using clean, readable TypeScript patterns.\n3. **System Design Basics:** Learn how frontends and backends communicate, database caching principles, and secure JWT verification paths."
+    },
+    {
+      "id": "blog_7",
+      "title": "Structuring Large Node.js APIs",
+      "slug": "structuring-large-node-js-apis",
+      "excerpt": "Discover modern architectural patterns, modular structures, and clean folder layouts for Node applications.",
+      "category": "Web Development",
+      "tags": [
+        "Architecture",
+        "Express",
+        "Node.js",
+        "Clean Code"
+      ],
+      "author": "Swaraj Patil",
+      "createdAt": "2025-10-12T08:30:00.000Z",
+      "updatedAt": "2025-10-12T08:30:00.000Z",
+      "readTime": "8 min",
+      "featured": false,
+      "content": "### Designing Highly Scalable Node.js Backends\n\nSmall Express experiments can fit into a single file. However, larger personal projects require modular layouts to remain maintainable. This visual walkthrough implements structured separation of concerns on server backends.\n\n#### Scalable Architecture Layout\n\nOrganize your backend folder structures by domain/responsibility:\n\n```text\n/server\n  /models       <-- Define schemas\n  /controllers  <-- Business logic handlers\n  /routes       <-- HTTP path mappings\n  /middleware   <-- JWT auth, error handles\n  /data         <-- Local file databases\n```\n\nSeparating routing declarations from controller logic makes verifying individual components straightforward."
+    },
+    {
+      "id": "blog_8",
+      "title": "Mastering React Custom Hooks",
+      "slug": "mastering-react-custom-hooks",
+      "excerpt": "Learn how to extract complex UI behaviors into clean, testable, and reusable custom React hooks.",
+      "category": "Web Development",
+      "tags": [
+        "React",
+        "Hooks",
+        "Frontend",
+        "Clean Code"
+      ],
+      "author": "Swaraj Patil",
+      "createdAt": "2025-09-28T14:00:00.000Z",
+      "updatedAt": "2025-09-28T14:00:00.000Z",
+      "readTime": "6 min",
+      "featured": false,
+      "content": "### Refactoring Component Logic into Reusable Hooks\n\nReact components should focus on rendering interfaces. Business logic, API communication, and state handlers are best extracted into reusable custom hooks. This guide creates modular React hooks to simplify your code.\n\n#### Creating a Secure API Fetch Hook\n\nExtract standard loading, state, and error handling behaviors into a single, clean hook:\n\n```jsx\nimport { useState, useEffect } from 'react';\n\nexport function useFetch(url) {\n  const [data, setData] = useState(null);\n  const [loading, setLoading] = useState(true);\n  const [error, setError] = useState(null);\n\n  useEffect(() => {\n    let active = true;\n    setLoading(true);\n    fetch(url)\n      .then(res => res.json())\n      .then(result => {\n        if (active) {\n          setData(result);\n          setLoading(false);\n        }\n      })\n      .catch(err => {\n        if (active) {\n          setError(err);\n          setLoading(false);\n        }\n      });\n    return () => { active = false; };\n  }, [url]);\n\n  return { data, loading, error };\n}\n```"
+    }
+  ],
+  "projects": [
+    {
+      "id": "proj_1",
+      "title": "ATS Resume Checker - AI Job Matching Platform",
+      "description": "An intelligent, AI-powered resume analyzer matching resumes to real job descriptions, scoring applicant tracking compatibility (ATS), parsing skill hierarchies, and generating targeted optimization metrics dynamically using large language model prompts.",
+      "shortDesc": "AI-powered resume analyzer that checks ATS compatibility and suggests improvements for job applications",
+      "image": "https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=600&auto=format&fit=crop",
+      "githubUrl": "https://github.com/swarajpatil/ats-resume-checker",
+      "liveUrl": "https://ats-resume-checker-swaraj.vercel.app",
+      "techStack": [
+        "React",
+        "Node.js",
+        "Express",
+        "MongoDB",
+        "OpenAI API",
+        "Tailwind CSS"
+      ],
+      "category": "AI Integration",
+      "createdAt": "2026-01-10T10:00:00.000Z",
+      "featured": true
+    },
+    {
+      "id": "proj_2",
+      "title": "Job Portal - Full-Stack Job Marketplace",
+      "description": "A comprehensive developer job marketplace platform containing dual client workflows for job hunters and recruiters. Features custom recruiter listing panels, interactive resume submissions, live search filtering with complex database aggregations, and WebSockets-supported notification logs.",
+      "shortDesc": "Complete job platform with user auth, job posting, application tracking, and real-time notifications",
+      "image": "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?q=80&w=600&auto=format&fit=crop",
+      "githubUrl": "https://github.com/swarajpatil/job-portal",
+      "liveUrl": "https://job-portal-swaraj.vercel.app",
+      "techStack": [
+        "React",
+        "Node.js",
+        "Express",
+        "MongoDB",
+        "JWT",
+        "Socket.io",
+        "Tailwind"
+      ],
+      "category": "MERN Stack",
+      "createdAt": "2025-11-15T09:30:00.000Z",
+      "featured": true
+    },
+    {
+      "id": "proj_3",
+      "title": "Password Manager - Encrypted Credential Storage",
+      "description": "A hardened, local credential safe secure utility applying local AES-256 client decrypt tools, automatic secure passcode generators, categorized credential folders, and dual-layer authorization mechanics for credential security.",
+      "shortDesc": "Secure password manager with encryption, generation, and copying features",
+      "image": "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=600&auto=format&fit=crop",
+      "githubUrl": "https://github.com/swarajpatil/password-manager",
+      "liveUrl": "https://password-manager-swaraj.vercel.app",
+      "techStack": [
+        "React",
+        "Node.js",
+        "Express",
+        "MongoDB",
+        "JWT",
+        "Crypto.js"
+      ],
+      "category": "MERN Stack",
+      "createdAt": "2025-08-20T14:15:00.000Z",
+      "featured": false
+    },
+    {
+      "id": "proj_4",
+      "title": "Food Delivery AI Platform - Smart Restaurant App",
+      "description": "AI-boosted local dining delivery interface featuring customized culinary item recommend engines driven by flavor profiles, active driver geolocation simulators, and direct technical client-support assistants replying in real-time.",
+      "shortDesc": "AI-powered food delivery app with recommendations, real-time order tracking, and chat support",
+      "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=600&auto=format&fit=crop",
+      "githubUrl": "https://github.com/swarajpatil/food-delivery-ai",
+      "liveUrl": "https://food-delivery-ai.vercel.app",
+      "techStack": [
+        "React",
+        "Node.js",
+        "Express",
+        "MongoDB",
+        "OpenAI API",
+        "Socket.io",
+        "Tailwind CSS"
+      ],
+      "category": "AI Integration",
+      "createdAt": "2025-12-05T11:45:00.000Z",
+      "featured": true
+    },
+    {
+      "id": "proj_5",
+      "title": "Video Conferencing Platform - Real-Time Video Chat",
+      "description": "A high-fidelity WebRTC workspace video platform handling direct peer connection audio/video channels, persistent room creation hubs, screen shares, and room participant text message chats.",
+      "shortDesc": "Multi-user video calling app with chat, screen sharing, and room management",
+      "image": "https://images.unsplash.com/photo-1588196749597-9ff075ee6b5b?q=80&w=600&auto=format&fit=crop",
+      "githubUrl": "https://github.com/swarajpatil/video-conferencing",
+      "liveUrl": "https://video-conferencing-swaraj.vercel.app",
+      "techStack": [
+        "React",
+        "Node.js",
+        "Socket.io",
+        "Peer.js",
+        "WebRTC",
+        "Tailwind"
+      ],
+      "category": "Real-Time Apps",
+      "createdAt": "2025-06-25T16:00:00.000Z",
+      "featured": true
+    },
+    {
+      "id": "proj_6",
+      "title": "Event Management System - Ticket Booking Platform",
+      "description": "Comprehensive reservation hub supporting custom event scheduling, guest registration databases, instant QR check-in email relays, dynamic tickets tracker, and payment confirmations.",
+      "shortDesc": "Create events, manage ticket sales, send notifications, and track attendees",
+      "image": "https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=600&auto=format&fit=crop",
+      "githubUrl": "https://github.com/swarajpatil/event-management",
+      "liveUrl": "https://event-management-swaraj.vercel.app",
+      "techStack": [
+        "React",
+        "Node.js",
+        "Express",
+        "MongoDB",
+        "JWT",
+        "Email.js"
+      ],
+      "category": "MERN Stack",
+      "createdAt": "2025-04-12T10:00:00.000Z",
+      "featured": false
+    },
+    {
+      "id": "proj_7",
+      "title": "Expense Tracker - Budget Management App",
+      "description": "An analytical visual ledger to input daily expenditures, chart financial trends over custom metrics, configure threshold limits alert grids, and export summaries.",
+      "shortDesc": "Track expenses, categorize spending, view charts, and set budget limits",
+      "image": "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=600&auto=format&fit=crop",
+      "githubUrl": "https://github.com/swarajpatil/expense-tracker",
+      "liveUrl": "https://expense-tracker-swaraj.vercel.app",
+      "techStack": [
+        "React",
+        "Node.js",
+        "Express",
+        "MongoDB",
+        "Chart.js",
+        "Tailwind"
+      ],
+      "category": "MERN Stack",
+      "createdAt": "2025-03-01T08:00:00.000Z",
+      "featured": false
+    },
+    {
+      "id": "proj_8",
+      "title": "Bluetooth Home Automation - IoT Arduino Project",
+      "description": "A hardware engineering solution applying an HC-05 serial Bluetooth chip paired to an Arduino microcontroller relaying custom micro-commands to toggle AC lighting systems remotely via serial telemetry.",
+      "shortDesc": "Control home devices via Bluetooth HC-05 with Arduino microcontroller",
+      "image": "https://images.unsplash.com/photo-1558002038-1055907df827?q=80&w=600&auto=format&fit=crop",
+      "githubUrl": "https://github.com/swarajpatil/bluetooth-home-automation",
+      "liveUrl": "",
+      "techStack": [
+        "Arduino",
+        "C++",
+        "HC-05 Bluetooth",
+        "Mobile App"
+      ],
+      "category": "IoT",
+      "createdAt": "2025-01-15T12:00:00.000Z",
+      "featured": false
+    }
+  ],
+  "users": [
+    {
+      "id": "usr_1",
+      "name": "Swaraj Patil",
+      "email": "pilly2702@gmail.com",
+      "passwordHash": "$2b$10$kLi1ybymhzQdpCkU8JMDBuv/tGPnaDH73eI9WvHbpHv98vD4hHAMG",
+      "role": "admin",
+      "createdAt": "2026-06-20T07:05:21.311Z"
+    }
+  ],
+  "contacts": [
+    {
+      "id": "contact_1",
+      "name": "Rohit Deshmukh",
+      "email": "rohit.deshmukh@tcs.local",
+      "message": "Hey Swaraj! Looking for full-stack React students in Pune for a 6-month developer internship starting next month. Your ATS Checker project looks outstanding!",
+      "createdAt": "2026-06-18T07:05:21.312Z",
+      "status": "unread"
+    },
+    {
+      "id": "contact_2",
+      "name": "Anjali Gupta",
+      "email": "anjali@technovate.tech",
+      "message": "Hi Swaraj, would love to recruit you for a short contract or part-time internship building AI chatbots with Express and React. Excellent portfolio design!",
+      "createdAt": "2026-06-15T07:05:21.312Z",
+      "status": "read"
+    }
+  ],
+  "newsletters": []
+}

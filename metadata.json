@@ -1,0 +1,6 @@
+{
+  "name": "Swaraj Patil Developer Blog",
+  "description": "Full-stack personal brand portfolio and technical developer blog of Swaraj Patil, built with Express and React.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
